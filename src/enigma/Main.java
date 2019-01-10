@@ -18,34 +18,70 @@ public class Main extends javax.swing.JFrame {
      */
     public Main() {
         initComponents();
+       output.setEditable(false);
+       inputField.requestFocus();
     }
     
+    Helper helper = new Helper();
+    
     private void encrypt(){
-        int rotaryPos = rotary1.getSelectedIndex();
+        int rotaryPos = rotary1.getSelectedIndex() + 1;
+        int rotary2Pos = rotary2.getSelectedIndex() + 1;
         String input = inputField.getText().toUpperCase();
         StringBuilder chiper = new StringBuilder(input);
+        
         for(int i=0;i<input.length();i++){
             char temp = input.charAt(i);
-            temp += rotaryPos % 26;
+            if(rotaryPos == 26){
+                rotary2Pos += 1;
+                rotaryPos = 0;
+                rotary1.setSelectedIndex(rotaryPos);
+                rotary2.setSelectedIndex(rotary2Pos - 1);
+            }
+            if(!helper.isSpecialCharacter(temp)){
+                    int wait = temp - 65;
+                    wait = (wait + rotary2Pos) % 25;
+                    System.out.print(wait + " ");
+                    wait = (wait + rotaryPos) % 25;
+                    temp = (char)(wait + 65);
+            }
             chiper.setCharAt(i,temp);
-            rotaryPos = (rotaryPos + 1) % 26;
-            rotary1.setSelectedIndex(rotaryPos);
+            rotaryPos += 1;
+            rotary1.setSelectedIndex(rotaryPos - 1);
+
         }
+        
         output.setText(chiper.toString());
     }
     
    private void decrypt(){
-       int rotaryPos = rotary1.getSelectedIndex();
+       int rotaryPos = rotary1.getSelectedIndex()+1;
+       int rotary2Pos = rotary2.getSelectedIndex() +1;
        String input = inputField.getText();
        StringBuilder plainText = new StringBuilder(input.toUpperCase());
        for(int i = 0; i < input.length();i++){
            char temp = input.charAt(i);
-           temp -= rotaryPos % 26;
+           if(rotaryPos == 26){
+                rotary2Pos += 1;
+                rotaryPos = 0;
+                rotary1.setSelectedIndex(rotaryPos);
+                rotary2.setSelectedIndex(rotary2Pos - 1);
+            }
+           if(!helper.isSpecialCharacter(temp)){
+           int wait = temp-65;
+           wait = (wait - rotaryPos) % 25;
+           wait = (wait - rotary2Pos)%25;
+           if(wait < 0){
+           wait = 25 + wait;
+           }
+           temp = (char)(wait + 65);
+           }
+
            plainText.setCharAt(i,temp);
-           
-           rotaryPos = (rotaryPos + 1) % 26;
-           rotary1.setSelectedIndex(rotaryPos);
+           rotaryPos += 1;
+           rotary1.setSelectedIndex(rotaryPos -1);
        }
+       System.out.println();
        output.setText(plainText.toString());
    }
     
@@ -66,10 +102,12 @@ public class Main extends javax.swing.JFrame {
         rotary1 = new javax.swing.JComboBox<>();
         rotary3 = new javax.swing.JComboBox<>();
         lblInput = new javax.swing.JLabel();
-        inputField = new javax.swing.JTextField();
         encryptButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        output = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        output = new javax.swing.JTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        inputField = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,7 +126,7 @@ public class Main extends javax.swing.JFrame {
         });
 
         topTitle.setFont(new java.awt.Font("Ubuntu", 1, 18)); // NOI18N
-        topTitle.setText("Simple Enigma");
+        topTitle.setText("Simple Text Chiper");
 
         rotary2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26" }));
         rotary2.addActionListener(new java.awt.event.ActionListener() {
@@ -103,8 +141,6 @@ public class Main extends javax.swing.JFrame {
 
         lblInput.setText("Input Text");
 
-        inputField.setText("input..");
-
         encryptButton.setText("Encrypt");
         encryptButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -114,65 +150,76 @@ public class Main extends javax.swing.JFrame {
 
         jLabel1.setText("Output Text");
 
-        output.setText("Output...");
+        output.setColumns(20);
+        output.setRows(5);
+        jScrollPane1.setViewportView(output);
+
+        inputField.setColumns(20);
+        inputField.setRows(5);
+        jScrollPane2.setViewportView(inputField);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(224, Short.MAX_VALUE)
-                .addComponent(rotary3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
-                .addComponent(rotary2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
-                .addComponent(rotary1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(211, 211, 211))
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1)
-                    .addComponent(output, javax.swing.GroupLayout.PREFERRED_SIZE, 649, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(decryptButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(encryptButton))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(295, 295, 295)
-                            .addComponent(topTitle))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(37, 37, 37)
+                        .addComponent(lblInput)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 664, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel1)
-                                .addComponent(lblInput)
-                                .addComponent(inputField, javax.swing.GroupLayout.PREFERRED_SIZE, 649, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(decryptButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(encryptButton))
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 664, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 34, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(173, 173, 173)
+                        .addComponent(rotary3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(84, 84, 84)
+                        .addComponent(rotary2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(85, 85, 85)
+                        .addComponent(rotary1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(281, 281, 281)
+                        .addComponent(topTitle)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(21, 21, 21)
                 .addComponent(topTitle)
-                .addGap(38, 38, 38)
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rotary2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(rotary1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(rotary3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(11, 11, 11)
+                .addGap(18, 18, 18)
                 .addComponent(lblInput)
-                .addGap(8, 8, 8)
-                .addComponent(inputField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(encryptButton)
                     .addComponent(decryptButton))
-                .addGap(18, 18, 18)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(output, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
                 .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(21, 21, 21))
         );
 
         pack();
@@ -234,11 +281,13 @@ public class Main extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton decryptButton;
     private javax.swing.JButton encryptButton;
-    private javax.swing.JTextField inputField;
+    private javax.swing.JTextArea inputField;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblInput;
-    private javax.swing.JLabel output;
+    private javax.swing.JTextArea output;
     private javax.swing.JComboBox<String> rotary1;
     private javax.swing.JComboBox<String> rotary2;
     private javax.swing.JComboBox<String> rotary3;

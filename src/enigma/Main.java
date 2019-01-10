@@ -19,45 +19,115 @@ public class Main extends javax.swing.JFrame {
      * Creates new form Main
      */
     public Main() {
+        //mengubah tema tampilan
         try{
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
         }catch (Exception e){
             e.printStackTrace();
         }
         initComponents();
+        //membuat agar textArea output tidak dapat diubah oleh pengguna
        output.setEditable(false);
+       //membuat agar kursor langsung berada pada textArea masukan
        inputField.requestFocus();
     }
     
     Helper helper = new Helper();
     
     private void encrypt(){
+        //mengambil setingan "kunci" enkripsi
+        /*
+        * Mengapa ditambah satu? karena untuk mendapatkan value dari dropdown
+        * tersebut, sehingga tidak perlu melakukan perubahan tipe data dari 
+        * String menjadi int
+        */
         int rotaryPos = rotary1.getSelectedIndex() + 1;
         int rotary2Pos = rotary2.getSelectedIndex() + 1;
         int rotary3Pos = rotary3.getSelectedIndex() + 1;
+        //mendapatkan input dan membuat inputan menjadi huruf kapital
         String input = inputField.getText().toUpperCase();
+        /*
+        * StringBuilder digunakan untuk "membangun" string dari char yang telah
+        * diproses satu persatu. Mengapa StringbBuilder kita inisialisasi dengan
+        * input, karena untuk membuat string dengan panjang yang sama dengan 
+        * inputan user, sehingga tidak mendapatkan exception "Index out of Bounds"
+        */
         StringBuilder chiper = new StringBuilder(input);
-        
+        //Menentukan teks dienkripsi berapa kali sesuai dengan rotary3 (paling kiri)
         for(int j = 0;j<rotary3Pos;j++){
+        //perulangan untuk mengambil setiap karakter pada input untuk di sandikan
         for(int i=0;i<input.length();i++){
+            /*
+            * Pembuatan variabel sementara untuk menampung data karakter ketika
+            * sedang di proses
+            */
             char temp = input.charAt(i);
+            /*
+            * Jika rotary1 (paling kanan) telah mencapai 26 maka ia akan kembali
+            * ke 1 dan menambahkan nilai rotary2 (tengah) dengan 1 sehingga 
+            * rotary2 juga akan berubah nilai nya, 
+            */
             if(rotaryPos == 26){
                 rotary2Pos += 1;
+                /*
+                * Jika posisi rotary2 telah sampai pada 26 maka rotary2 akan
+                * dikembalikan pada posisi 1
+                */
                 if(rotary2Pos == 26){
                     rotary2Pos = 1;
                 }
                 rotaryPos = 1;
+                //mengubah tampilan rotary menyesuaikan nilai yang telah diatur
                 rotary1.setSelectedIndex(rotaryPos);
                 rotary2.setSelectedIndex(rotary2Pos - 1);
             }
+            /*jika karakter yang akan dienkripsi merupakan karakter spesial
+            * misalkan tanda baca, maka karakter tersebut tidak akan di enkripsi.
+            * Sebaliknya jika karakter tersebut bukan merupakan karakter spesial
+            * maka karakter akan disandikan.
+            */
             if(!helper.isSpecialCharacter(temp)){
+                /*
+                Penyandian terjadi disini, 
+                */
+                /*
+                Pertama kita ubah karakter tersebut menjadi kode ASCII. dimana 
+                ASCII untuk huruf A adalah 65, maka nilai perubahan tersebut kita
+                kurangkan dengan 65 sehingga huruf A kini menjadi 0, sehingga 
+                dapat lebih mudah dioperasikan
+                */
                     int wait = temp - 65;
+                    /*
+                    Penyandian Pertama :
+                    pertama kita geser huruf berdasarkan dengan posisi rotary2 
+                    lalu kita gunakan modulo 25 agar nilai tidak lebih dari 25,
+                    sehingga dalam "pengembalian" kode menjadi huruf, tidak 
+                    memunculkan karakter selain huruf.
+                    */
                     wait = (wait + rotary2Pos) % 25;
+                    /*
+                    Penyandian kedua :
+                    Setelah digeser oleh rotary2 kemudian kode huruf akan di geser
+                    lagi berdasarkan rotary1, lagi, nilai mendapatkan modulo 25
+                    sehingga dalam "pengembalian" kode menjadi huruf, tidak 
+                    memunculkan karakter selain huruf.
+                    */
                     wait = (wait + rotaryPos) % 25;
+                    //mengembalikan kode huruf menjadi huruf
                     temp = (char)(wait + 65);
             }
+            /*kemudian mengubah huruf yang ada pada StringBuilder menjadi
+            karakter yang telah kita sandikan
+            */
             chiper.setCharAt(i,temp);
+            /*mengubah posisi rotary
+                Mengapa mengubah posisi rotary?
+                Karena dengan mengubah posisi rotary akan membuat suatu huruf
+                tertentu tidak di enkripsi dengan cara yang sama, sehingga akan
+                lebih sulit untuk menemukan pola nya.
+            */
             rotaryPos += 1;
+            //mengubah pilihan rotary1
             rotary1.setSelectedIndex(rotaryPos - 1);
 
         }
@@ -66,34 +136,88 @@ public class Main extends javax.swing.JFrame {
     }
     
    private void decrypt(){
+       //mengambil setingan "kunci" enkripsi
+        /*
+        * Mengapa ditambah satu? karena untuk mendapatkan value dari dropdown
+        * tersebut, sehingga tidak perlu melakukan perubahan tipe data dari 
+        * String menjadi int
+        */
        int rotaryPos = rotary1.getSelectedIndex()+1;
        int rotary2Pos = rotary2.getSelectedIndex() +1;
        int rotary3Pos = rotary3.getSelectedIndex() + 1;
-       
+       //mendapatkan inputan
        String input = inputField.getText();
+       /*
+        * StringBuilder digunakan untuk "membangun" string dari char yang telah
+        * diproses satu persatu. Mengapa StringbBuilder kita inisialisasi dengan
+        * input, karena untuk membuat string dengan panjang yang sama dengan 
+        * inputan user, sehingga tidak mendapatkan exception "Index out of Bounds"
+        */
        StringBuilder plainText = new StringBuilder(input.toUpperCase());
-       for(int j = 0;j<rotary3Pos;j++){
-       for(int i = 0; i < input.length();i++){
+       //Menentukan teks di dekripsi berapa kali sesuai dengan rotary3 (paling kiri)
+        for(int j = 0;j<rotary3Pos;j++){
+       //perulangan untuk mengambil setiap karakter pada input untuk di sandikan
+        for(int i = 0; i < input.length();i++){
+            /*
+            * Pembuatan variabel sementara untuk menampung data karakter ketika
+            * sedang di proses
+            */
            char temp = input.charAt(i);
+           /*
+            * Jika rotary1 (paling kanan) telah mencapai 26 maka ia akan kembali
+            * ke 1 dan menambahkan nilai rotary2 (tengah) dengan 1 sehingga 
+            * rotary2 juga akan berubah nilai nya, 
+            */
            if(rotaryPos == 26){
                 rotary2Pos += 1;
+                /*
+                * Jika posisi rotary2 telah sampai pada 26 maka rotary2 akan
+                * dikembalikan pada posisi 1
+                */
                 if(rotary2Pos == 26){
                 rotary2Pos = 1;
                 }
                 rotaryPos = 1;
+             //mengubah tampilan rotary menyesuaikan nilai yang telah diatur
                 rotary1.setSelectedIndex(rotaryPos);
                 rotary2.setSelectedIndex(rotary2Pos - 1);
             }
+            /*jika karakter yang akan di denkripsi merupakan karakter spesial
+            * misalkan tanda baca, maka karakter tersebut tidak akan di denkripsi.
+            * Sebaliknya jika karakter tersebut bukan merupakan karakter spesial
+            * maka karakter akan di buka sandinya.
+            */
            if(!helper.isSpecialCharacter(temp)){
+            /*
+            Penyandian terjadi disini, 
+            */
+            /*
+            Pertama kita ubah karakter tersebut menjadi kode ASCII. dimana 
+            ASCII untuk huruf A adalah 65, maka nilai perubahan tersebut kita
+            kurangkan dengan 65 sehingga huruf A kini menjadi 0, sehingga 
+            dapat lebih mudah dioperasikan
+            */
            int wait = temp-65;
+           /*
+            Pembukaan Pertama :
+            Menggeser kembali berdasarkan geseran oleh rotary 1
+           */
            wait = (wait - rotaryPos) % 25;
+           /*
+           Pembukaan Kedua:
+            Menggeser kembali berdasarkan geseran oleh rotary 2
+           */
            wait = (wait - rotary2Pos)%25;
+           /*apabila setelah hasil geser nilai nya menjadi negatif, maka
+           25 akan kita kurangkan dengan nilai tersebut sehingga kode nilai
+           menjadi seperti sebelumnya
+           */
            if(wait < 0){
            wait = 25 + wait;
            }
            temp = (char)(wait + 65);
            }
-
+           //same as above
            plainText.setCharAt(i,temp);
            rotaryPos += 1;
            rotary1.setSelectedIndex(rotaryPos -1);
@@ -313,10 +437,12 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_rotary2ActionPerformed
 
     private void encryptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encryptButtonActionPerformed
+        //action tombol enkrip ketika di klik
         encrypt();
     }//GEN-LAST:event_encryptButtonActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        //ketika menu clear all di klik merubah semua yang dapat diubah menjadi "kosong"
         inputField.setText("");
         output.setText("");
         rotary1.setSelectedIndex(0);        
@@ -326,15 +452,20 @@ public class Main extends javax.swing.JFrame {
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         // TODO add your handling code here:
+        //keluar aplikasi
         System.exit(0);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
+        //memunculkan teks bantuan
         JOptionPane.showMessageDialog(null,
                 "Bantuan :\n-Menyandikan Teks\n\tMasukkan teks pada form masukan, lalu " + 
                  "pilihlah kunci penyandian teks anda \npada 3 pilihan diatas form masukkan "+
-                 "kemudian tekan tombol Enkripsi.\n-Membuka Teks Yang Tersandi\n\t" +
+                 "kemudian tekan tombol Enkripsi.\n"
+                        + "INGAT UNTUK TIDAK MEMASUKKAN ANGKA, DAN KURANGI PENGGUANAAN\n"
+                        + "TANDA BACA! "
+                        + "\n-Membuka Teks Yang Tersandi\n\t" +
                  "Masukkan teks yang tersandikan pada form masukan, lalu pilihlah kunci " +
                  "yang \nsama persis ketika anda menyandikan teks tersebut, kemudian tekan" + 
                  " tombol \nDekripsi.\n\t-Salin Hasil\n Anda dapat menyalin hasil penyandian " + 
@@ -344,6 +475,7 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        //memunculkan teks identitas
         JOptionPane.showMessageDialog(null,"Penyandi Teks Sederhana\n\n"
                 + "oleh : \n"
                 + "Nur Awalia Ramadhani (18520241024)\n"

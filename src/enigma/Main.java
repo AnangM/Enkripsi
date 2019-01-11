@@ -100,19 +100,19 @@ public class Main extends javax.swing.JFrame {
                     /*
                     Penyandian Pertama :
                     pertama kita geser huruf berdasarkan dengan posisi rotary2 
-                    lalu kita gunakan modulo 25 agar nilai tidak lebih dari 25,
+                    lalu kita gunakan modulo 26 agar nilai tidak lebih dari 26,
                     sehingga dalam "pengembalian" kode menjadi huruf, tidak 
                     memunculkan karakter selain huruf.
                     */
-                    wait = (wait + rotary2Pos) % 25;
+                    wait = (wait + rotary2Pos) % 26;
                     /*
                     Penyandian kedua :
                     Setelah digeser oleh rotary2 kemudian kode huruf akan di geser
-                    lagi berdasarkan rotary1, lagi, nilai mendapatkan modulo 25
+                    lagi berdasarkan rotary1, lagi, nilai mendapatkan modulo 26
                     sehingga dalam "pengembalian" kode menjadi huruf, tidak 
                     memunculkan karakter selain huruf.
                     */
-                    wait = (wait + rotaryPos) % 25;
+                    wait = (wait + rotaryPos) % 26;
                     //mengembalikan kode huruf menjadi huruf
                     temp = (char)(wait + 65);
             }
@@ -202,18 +202,18 @@ public class Main extends javax.swing.JFrame {
             Pembukaan Pertama :
             Menggeser kembali berdasarkan geseran oleh rotary 1
            */
-           wait = (wait - rotaryPos) % 25;
+           wait = (wait - rotaryPos) % 26;
            /*
            Pembukaan Kedua:
             Menggeser kembali berdasarkan geseran oleh rotary 2
            */
-           wait = (wait - rotary2Pos)%25;
+           wait = (wait - rotary2Pos)%26;
            /*apabila setelah hasil geser nilai nya menjadi negatif, maka
-           25 akan kita kurangkan dengan nilai tersebut sehingga kode nilai
+           26 akan kita kurangkan dengan nilai tersebut sehingga kode nilai
            menjadi seperti sebelumnya
            */
            if(wait < 0){
-           wait = 25 + wait;
+           wait = 26 + wait;
            }
            temp = (char)(wait + 65);
            }
